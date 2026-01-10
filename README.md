@@ -4,7 +4,7 @@ A fireworks system for FiveM servers with multiple firework types, particle effe
 
 ## ✨ Features
 
-- 5 firework types with unique particle effects
+- 8 firework types with unique particle effects
 - ESX, QBCore, and Standalone support
 - ox_inventory, qb-inventory, qs-inventory integration
 - Command and item usage support
@@ -58,11 +58,17 @@ Config.Permissions = {
 
 | Command | Description |
 |---------|-------------|
-| `/fire_1` | Starburst Display |
-| `/fire_2` | Christmas Special |
-| `/fire_3` | Spiral Burst |
-| `/fire_4` | Trail Burst |
+| `/firework_1` | Starburst Display |
+| `/firework_2` | Christmas Special |
+| `/firework_3` | Spiral Burst |
+| `/firework_4` | Trail Burst |
 | `/fountain_1` | Fountain |
+| `/firework_battery` | Battery Colorful Burst (rapid colorful explosions) |
+| `/firework_battery2` | Battery Fast Burst (rapid explosions) |
+| `/firework_start` | Start Rocket (single big explosion) |
+| `/firework_finale` | Finale Salute (3 massive explosions) |
+| `/stopfirework` | Stop last placed firework |
+| `/stopfireworks` | Stop all placed fireworks |
 
 > Commands require permission. Items can be used by anyone.
 

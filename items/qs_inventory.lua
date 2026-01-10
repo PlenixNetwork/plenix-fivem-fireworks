@@ -64,6 +64,54 @@
     description = 'Ground-based fountain firework display'
 },
 
+['firework_battery'] = {
+    name = 'firework_battery',
+    label = 'Battery Colorful Burst',
+    weight = 800,
+    type = 'item',
+    image = 'firework_battery.png',
+    unique = false,
+    useable = true,
+    shouldClose = true,
+    description = 'Multiple colorful rapid explosions in the sky'
+},
+
+['firework_battery2'] = {
+    name = 'firework_battery2',
+    label = 'Battery Fast Burst',
+    weight = 800,
+    type = 'item',
+    image = 'firework_battery2.png',
+    unique = false,
+    useable = true,
+    shouldClose = true,
+    description = 'Multiple rapid explosions in the sky'
+},
+
+['firework_start'] = {
+    name = 'firework_start',
+    label = 'Start Rocket',
+    weight = 300,
+    type = 'item',
+    image = 'firework_start.png',
+    unique = false,
+    useable = true,
+    shouldClose = true,
+    description = 'Single big explosion to announce the start'
+},
+
+['firework_finale'] = {
+    name = 'firework_finale',
+    label = 'Finale Salute',
+    weight = 1000,
+    type = 'item',
+    image = 'firework_finale.png',
+    unique = false,
+    useable = true,
+    shouldClose = true,
+    description = '3 massive explosions to end the show'
+},
+
 ['lighter'] = {
     name = 'lighter',
     label = 'Lighter',

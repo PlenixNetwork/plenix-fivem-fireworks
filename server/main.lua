@@ -8,20 +8,30 @@ local ESX = nil
 local QBCore = nil
 
 -----------------------------------------------------------
+-- DEBUG HELPER
+-----------------------------------------------------------
+local function DebugPrint(message, color)
+    if Config.General.Debug then
+        color = color or '^3'
+        print(color .. '[Fireworks] ' .. message .. '^0')
+    end
+end
+
+-----------------------------------------------------------
 -- FRAMEWORK INITIALIZATION (Server-side)
 -----------------------------------------------------------
 Citizen.CreateThread(function()
     if Config.General.Framework == 'esx' then
         if GetResourceState('es_extended') == 'started' then
             ESX = exports['es_extended']:getSharedObject()
-            print('^2[Fireworks] ESX Framework loaded^0')
+            DebugPrint('ESX Framework loaded', '^2')
         else
             print('^1[Fireworks] WARNING: es_extended not found^0')
         end
     elseif Config.General.Framework == 'qb' then
         if GetResourceState('qb-core') == 'started' then
             QBCore = exports['qb-core']:GetCoreObject()
-            print('^2[Fireworks] QBCore Framework loaded^0')
+            DebugPrint('QBCore Framework loaded', '^2')
         else
             print('^1[Fireworks] WARNING: qb-core not found^0')
         end
@@ -32,17 +42,17 @@ end)
 -- HELPER FUNCTIONS
 -----------------------------------------------------------
 local function HasItem(source, itemName)
-    print('^3[Fireworks] Checking if player ' .. source .. ' has item: ' .. itemName .. '^0')
+    DebugPrint('Checking if player ' .. source .. ' has item: ' .. itemName)
     
     if Config.General.Inventory == 'ox' then
         local success, result = pcall(function()
             return exports.ox_inventory:Search(source, 'count', itemName)
         end)
         if success then
-            print('^3[Fireworks] ox_inventory Search result: ' .. tostring(result) .. '^0')
+            DebugPrint('ox_inventory Search result: ' .. tostring(result))
             return result and result > 0
         else
-            print('^1[Fireworks] ox_inventory Search error: ' .. tostring(result) .. '^0')
+            DebugPrint('ox_inventory Search error: ' .. tostring(result), '^1')
             return false
         end
     elseif Config.General.Inventory == 'qb' then
@@ -62,14 +72,14 @@ local function HasItem(source, itemName)
 end
 
 local function RemoveItem(source, itemName, amount)
-    print('^3[Fireworks] Removing ' .. amount .. 'x ' .. itemName .. ' from player ' .. source .. '^0')
+    DebugPrint('Removing ' .. amount .. 'x ' .. itemName .. ' from player ' .. source)
     
     if Config.General.Inventory == 'ox' then
         local success, err = pcall(function()
             exports.ox_inventory:RemoveItem(source, itemName, amount)
         end)
         if not success then
-            print('^1[Fireworks] RemoveItem error: ' .. tostring(err) .. '^0')
+            DebugPrint('RemoveItem error: ' .. tostring(err), '^1')
         end
     elseif Config.General.Inventory == 'qb' then
         if not QBCore then return end
@@ -87,23 +97,23 @@ local function RemoveItem(source, itemName, amount)
 end
 
 local function UseFirework(source, fireworkKey)
-    print('^2[Fireworks] UseFirework called - Player: ' .. source .. ', Key: ' .. tostring(fireworkKey) .. '^0')
+    DebugPrint('UseFirework called - Player: ' .. source .. ', Key: ' .. tostring(fireworkKey), '^2')
     
     local firework = Config.Fireworks[fireworkKey]
     if not firework then 
-        print('^1[Fireworks] Invalid firework key: ' .. tostring(fireworkKey) .. '^0')
+        DebugPrint('Invalid firework key: ' .. tostring(fireworkKey), '^1')
         return 
     end
     
     -- Check for lighter requirement
     if Config.Items.RequireLighter then
-        print('^3[Fireworks] Checking lighter requirement...^0')
+        DebugPrint('Checking lighter requirement...')
         if not HasItem(source, Config.Items.LighterItem) then
-            print('^1[Fireworks] Player missing lighter^0')
+            DebugPrint('Player missing lighter', '^1')
             TriggerClientEvent('plenix-fireworks:notification', source, 'NEED_LIGHTER', 5000, 'error')
             return
         end
-        print('^2[Fireworks] Player has lighter^0')
+        DebugPrint('Player has lighter', '^2')
     end
     
     -- Remove item if configured
@@ -112,7 +122,7 @@ local function UseFirework(source, fireworkKey)
     end
     
     -- Trigger firework on client
-    print('^2[Fireworks] Triggering client firework event^0')
+    DebugPrint('Triggering client firework event', '^2')
     TriggerClientEvent('plenix-fireworks:startFirework', source, fireworkKey)
 end
 
@@ -120,6 +130,14 @@ end
 -- PERMISSION CHECKING
 -----------------------------------------------------------
 local function HasCommandPermission(source)
+    -- Check admin bypass first
+    if Config.Permissions.AdminBypass then
+        if IsPlayerAceAllowed(source, Config.Permissions.AdminPermission) then
+            DebugPrint('Admin bypass granted for player ' .. source, '^2')
+            return true
+        end
+    end
+    
     local mode = Config.Permissions.Mode
     
     if mode == 'none' then
@@ -184,7 +202,31 @@ RegisterNetEvent('plenix-fireworks:requestCommand', function(fireworkKey)
         end
     end
     
-    TriggerClientEvent('plenix-fireworks:startFirework', source, fireworkKey)
+    -- Pass true to indicate this is from a command
+    TriggerClientEvent('plenix-fireworks:startFirework', source, fireworkKey, true)
+end)
+
+-----------------------------------------------------------
+-- STOP FIREWORK COMMANDS
+-----------------------------------------------------------
+RegisterNetEvent('plenix-fireworks:requestStopLast', function()
+    local source = source
+    
+    if not HasCommandPermission(source) then
+        return TriggerClientEvent('plenix-fireworks:notification', source, 'NO_PERMISSION', 5000, 'error')
+    end
+    
+    TriggerClientEvent('plenix-fireworks:stopLast', source)
+end)
+
+RegisterNetEvent('plenix-fireworks:requestStopAll', function()
+    local source = source
+    
+    if not HasCommandPermission(source) then
+        return TriggerClientEvent('plenix-fireworks:notification', source, 'NO_PERMISSION', 5000, 'error')
+    end
+    
+    TriggerClientEvent('plenix-fireworks:stopAll', source)
 end)
 
 -----------------------------------------------------------
@@ -194,13 +236,13 @@ Citizen.CreateThread(function()
     -- Wait for resources to fully load
     Wait(3000)
     
-    print('^3[Fireworks] Registering usable items...^0')
-    print('^3[Fireworks] Inventory system: ' .. Config.General.Inventory .. '^0')
+    DebugPrint('Registering usable items...')
+    DebugPrint('Inventory system: ' .. Config.General.Inventory)
     
     if Config.General.Inventory == 'ox' then
         -- Check if ox_inventory is available
         local oxState = GetResourceState('ox_inventory')
-        print('^3[Fireworks] ox_inventory state: ' .. oxState .. '^0')
+        DebugPrint('ox_inventory state: ' .. oxState)
         
         if oxState ~= 'started' then
             print('^1[Fireworks] ERROR: ox_inventory is not started!^0')
@@ -212,7 +254,7 @@ Citizen.CreateThread(function()
         for key, firework in pairs(Config.Fireworks) do
             if firework.item then
                 fireworkItems[firework.item] = key
-                print('^2[Fireworks] Tracking ox_inventory item: ' .. firework.item .. ' (key: ' .. key .. ')^0')
+                DebugPrint('Tracking ox_inventory item: ' .. firework.item .. ' (key: ' .. key .. ')', '^2')
             end
         end
         
@@ -220,12 +262,12 @@ Citizen.CreateThread(function()
         AddEventHandler('ox_inventory:usedItem', function(playerId, itemName, slotId, metadata)
             local fireworkKey = fireworkItems[itemName]
             if fireworkKey then
-                print('^2[Fireworks] ox_inventory item used! Player: ' .. playerId .. ', Item: ' .. itemName .. '^0')
+                DebugPrint('ox_inventory item used! Player: ' .. playerId .. ', Item: ' .. itemName, '^2')
                 UseFirework(playerId, fireworkKey)
             end
         end)
         
-        print('^2[Fireworks] ox_inventory integration complete (using usedItem event)^0')
+        DebugPrint('ox_inventory integration complete (using usedItem event)', '^2')
         
     elseif Config.General.Inventory == 'qb' then
         if GetResourceState('qb-core') ~= 'started' then
@@ -243,11 +285,11 @@ Citizen.CreateThread(function()
                 QBCore.Functions.CreateUseableItem(firework.item, function(source)
                     UseFirework(source, key)
                 end)
-                print('^2[Fireworks] Registered QBCore item: ' .. firework.item .. '^0')
+                DebugPrint('Registered QBCore item: ' .. firework.item, '^2')
             end
         end
         
-        print('^2[Fireworks] QBCore integration complete^0')
+        DebugPrint('QBCore integration complete', '^2')
         
     elseif Config.General.Inventory == 'esx' then
         if GetResourceState('es_extended') ~= 'started' then
@@ -265,11 +307,11 @@ Citizen.CreateThread(function()
                 ESX.RegisterUsableItem(firework.item, function(source)
                     UseFirework(source, key)
                 end)
-                print('^2[Fireworks] Registered ESX item: ' .. firework.item .. '^0')
+                DebugPrint('Registered ESX item: ' .. firework.item, '^2')
             end
         end
         
-        print('^2[Fireworks] ESX integration complete^0')
+        DebugPrint('ESX integration complete', '^2')
     else
         print('^1[Fireworks] ERROR: Unknown inventory: ' .. tostring(Config.General.Inventory) .. '^0')
     end

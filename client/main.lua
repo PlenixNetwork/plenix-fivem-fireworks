@@ -4,6 +4,9 @@
 ]]
 
 local hasActiveFirework = nil
+local activeFireworks = {}           -- Track all active fireworks { [id] = { prop = entity, cancelled = false } }
+local fireworkIdCounter = 0          -- Counter for unique firework IDs
+local lastCommandFireworkId = nil    -- Last firework placed via command
 
 -----------------------------------------------------------
 -- 3D TEXT DRAWING
@@ -86,12 +89,24 @@ Citizen.CreateThread(function()
             Fireworks.Debug('Registered command:', firework.command)
         end
     end
+    
+    -- Stop last firework command
+    RegisterCommand('stopfirework', function()
+        TriggerServerEvent('plenix-fireworks:requestStopLast')
+    end, false)
+    Fireworks.Debug('Registered command: stopfirework')
+    
+    -- Stop all fireworks command
+    RegisterCommand('stopfireworks', function()
+        TriggerServerEvent('plenix-fireworks:requestStopAll')
+    end, false)
+    Fireworks.Debug('Registered command: stopfireworks')
 end)
 
 -----------------------------------------------------------
 -- START FIREWORK EVENT
 -----------------------------------------------------------
-RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType)
+RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType, fromCommand)
     -- Check if player already has an active firework
     if Config.General.DisableMultipleFireworks and hasActiveFirework then
         Config.Notification(Config.Translate['CANNOT_START'], 4500, 'error')
@@ -105,7 +120,11 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType)
         return
     end
 
-    Fireworks.Debug('Starting firework:', fireworkType)
+    -- Generate unique ID for this firework
+    fireworkIdCounter = fireworkIdCounter + 1
+    local fireworkId = fireworkIdCounter
+    
+    Fireworks.Debug('Starting firework:', fireworkType, '(ID:', fireworkId, ')')
 
     local playerPed = PlayerPedId()
     local playerOffset = GetOffsetFromEntityInWorldCoords(playerPed, 0.0, 0.6, 0.0)
@@ -137,6 +156,18 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType)
 
     PlaceObjectOnGroundProperly(hasActiveFirework)
     FreezeEntityPosition(hasActiveFirework, true)
+    
+    -- Track this firework
+    activeFireworks[fireworkId] = {
+        prop = hasActiveFirework,
+        cancelled = false,
+        fromCommand = fromCommand or false
+    }
+    
+    -- If from command, track as last command firework
+    if fromCommand then
+        lastCommandFireworkId = fireworkId
+    end
 
     -- Clear animation
     ClearPedTasks(playerPed)
@@ -145,9 +176,16 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType)
     Config.Notification(Config.Translate['YOU_PLACE_FIREWORK'], 4500, 'success')
 
     local boxCoords = GetEntityCoords(hasActiveFirework)
+    local currentFirework = activeFireworks[fireworkId]
 
     -- Countdown display
     while countdown > 0 do
+        -- Check if cancelled
+        if currentFirework.cancelled then
+            Fireworks.Debug('Firework cancelled during countdown (ID:', fireworkId, ')')
+            goto cleanup
+        end
+        
         countdown = countdown - 50
         if Config.General.Enable3DText then
             DrawText3D(boxCoords, tostring(math.ceil(countdown / 1000)))
@@ -164,6 +202,12 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType)
 
     -- Fire the firework
     while remainingShoots > 0 do
+        -- Check if cancelled
+        if currentFirework.cancelled then
+            Fireworks.Debug('Firework cancelled during firing (ID:', fireworkId, ')')
+            goto cleanup
+        end
+        
         remainingShoots = remainingShoots - 1
         
         for _, particle in pairs(fireworkData.particles) do
@@ -183,6 +227,12 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType)
             )
             
             Wait(particle.timeToNextShoot)
+            
+            -- Check if cancelled during particle loop
+            if currentFirework.cancelled then
+                Fireworks.Debug('Firework cancelled during particles (ID:', fireworkId, ')')
+                goto cleanup
+            end
         end
         
         Wait(fireworkData.timeBetweenShoots or 300)
@@ -190,12 +240,25 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType)
 
     Fireworks.Debug('Firework finished, cleaning up')
 
-    -- Cleanup
-    NetworkFadeOutEntity(hasActiveFirework, true, false)
-    Wait(2000)
+    -- Cleanup label
+    ::cleanup::
     
-    if DoesEntityExist(hasActiveFirework) then
-        DeleteEntity(hasActiveFirework)
+    -- Cleanup
+    local propEntity = activeFireworks[fireworkId] and activeFireworks[fireworkId].prop
+    if propEntity and DoesEntityExist(propEntity) then
+        NetworkFadeOutEntity(propEntity, true, false)
+        Wait(500)
+        if DoesEntityExist(propEntity) then
+            DeleteEntity(propEntity)
+        end
+    end
+    
+    -- Remove from tracking
+    activeFireworks[fireworkId] = nil
+    
+    -- Clear last command firework if this was it
+    if lastCommandFireworkId == fireworkId then
+        lastCommandFireworkId = nil
     end
     
     hasActiveFirework = nil
@@ -210,5 +273,35 @@ RegisterNetEvent('plenix-fireworks:notification', function(messageKey, time, not
         Config.Notification(message, time, notifType)
     else
         Fireworks.Debug('Missing translation key:', messageKey)
+    end
+end)
+
+-----------------------------------------------------------
+-- STOP FIREWORK EVENTS
+-----------------------------------------------------------
+RegisterNetEvent('plenix-fireworks:stopLast', function()
+    if lastCommandFireworkId and activeFireworks[lastCommandFireworkId] then
+        Fireworks.Debug('Stopping last command firework (ID:', lastCommandFireworkId, ')')
+        activeFireworks[lastCommandFireworkId].cancelled = true
+        Config.Notification(Config.Translate['FIREWORK_STOPPED'] or 'Firework stopped', 3000, 'info')
+    else
+        Config.Notification(Config.Translate['NO_FIREWORK_TO_STOP'] or 'No active firework to stop', 3000, 'error')
+    end
+end)
+
+RegisterNetEvent('plenix-fireworks:stopAll', function()
+    local count = 0
+    for id, firework in pairs(activeFireworks) do
+        if firework.fromCommand then
+            firework.cancelled = true
+            count = count + 1
+        end
+    end
+    
+    if count > 0 then
+        Fireworks.Debug('Stopping all command fireworks, count:', count)
+        Config.Notification(string.format(Config.Translate['FIREWORKS_STOPPED'] or '%d firework(s) stopped', count), 3000, 'info')
+    else
+        Config.Notification(Config.Translate['NO_FIREWORK_TO_STOP'] or 'No active fireworks to stop', 3000, 'error')
     end
 end)

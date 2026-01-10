@@ -62,6 +62,42 @@
         description = "Ground fountain firework",
     },
 
+    ["firework_battery"] = {
+        label = "Battery Colorful Burst",
+        weight = 800,
+        stack = true,
+        close = true,
+        consume = 0,
+        description = "Multiple colorful rapid explosions in the sky",
+    },
+
+    ["firework_battery2"] = {
+        label = "Battery Fast Burst",
+        weight = 800,
+        stack = true,
+        close = true,
+        consume = 0,
+        description = "Multiple rapid explosions in the sky",
+    },
+
+    ["firework_start"] = {
+        label = "Start Rocket",
+        weight = 300,
+        stack = true,
+        close = true,
+        consume = 0,
+        description = "Single big explosion to announce the start",
+    },
+
+    ["firework_finale"] = {
+        label = "Finale Salute",
+        weight = 1000,
+        stack = true,
+        close = true,
+        consume = 0,
+        description = "3 massive explosions to end the show",
+    },
+
     -- Only add lighter if you don't already have one
     ["lighter"] = {
         label = "Lighter",

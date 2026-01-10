@@ -12,6 +12,10 @@ INSERT INTO `items` (`name`, `label`, `weight`, `rare`, `can_remove`) VALUES
     ('firework_3', 'Spiral Firework', 500, 0, 1),
     ('firework_4', 'Trail Burst Firework', 500, 0, 1),
     ('fountain_1', 'Fountain Firework', 500, 0, 1),
+    ('firework_battery', 'Battery Colorful Burst', 800, 0, 1),
+    ('firework_battery2', 'Battery Fast Burst', 800, 0, 1),
+    ('firework_start', 'Start Rocket', 300, 0, 1),
+    ('firework_finale', 'Finale Salute', 1000, 0, 1),
     ('lighter', 'Lighter', 50, 0, 1);
 
 -- If you already have a lighter item, remove the last line
