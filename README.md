@@ -74,8 +74,4 @@ Config.Permissions = {
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE)
-
----
-
-**Made with ❤️ by Plenix Network**
+This project is licensed under the **MIT License**.
