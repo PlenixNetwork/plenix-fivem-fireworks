@@ -105,6 +105,44 @@ local function RemoveItem(source, itemName, amount)
     end
 end
 
+-----------------------------------------------------------
+-- ACTIVE FIREWORK TRACKING (for DisableMultipleFireworks)
+-- Checked here, before any item is removed, so a blocked firework never costs an item
+-----------------------------------------------------------
+local activeFireworkUntil = {}   -- [source] = os.time() when the firework is surely over
+
+local function GetFireworkDurationSeconds(firework)
+    local perShot = firework.timeBetweenShoots or 300
+    for _, particle in ipairs(firework.particles or {}) do
+        perShot = perShot + (particle.timeToNextShoot or 0)
+    end
+    local totalMs = 1500 + (firework.timeToStart or 0) + (firework.shoots or 1) * perShot
+    return math.ceil(totalMs / 1000) + 5 -- small safety margin
+end
+
+local function CanStartFirework(source)
+    if not Config.General.DisableMultipleFireworks then
+        return true
+    end
+    local untilTime = activeFireworkUntil[source]
+    return not untilTime or os.time() >= untilTime
+end
+
+local function MarkFireworkActive(source, firework)
+    if Config.General.DisableMultipleFireworks then
+        activeFireworkUntil[source] = os.time() + GetFireworkDurationSeconds(firework)
+    end
+end
+
+-- Client tells us its firework finished (or failed to place)
+RegisterNetEvent('plenix-fireworks:finished', function()
+    activeFireworkUntil[source] = nil
+end)
+
+AddEventHandler('playerDropped', function()
+    activeFireworkUntil[source] = nil
+end)
+
 local function UseFirework(source, fireworkKey)
     DebugPrint('UseFirework called - Player: ' .. source .. ', Key: ' .. tostring(fireworkKey), '^2')
     
@@ -124,6 +162,12 @@ local function UseFirework(source, fireworkKey)
         end
         DebugPrint('Player has lighter', '^2')
     end
+    
+    if not CanStartFirework(source) then
+        TriggerClientEvent('plenix-fireworks:notification', source, 'CANNOT_START', 4500, 'error')
+        return
+    end
+    MarkFireworkActive(source, firework)
     
     -- Remove item if configured
     if firework.itemRemovable and firework.item then
@@ -210,6 +254,11 @@ RegisterNetEvent('plenix-fireworks:requestCommand', function(fireworkKey)
             return TriggerClientEvent('plenix-fireworks:notification', source, 'NEED_LIGHTER', 5000, 'error')
         end
     end
+    
+    if not CanStartFirework(source) then
+        return TriggerClientEvent('plenix-fireworks:notification', source, 'CANNOT_START', 4500, 'error')
+    end
+    MarkFireworkActive(source, firework)
     
     -- Pass true to indicate this is from a command
     TriggerClientEvent('plenix-fireworks:startFirework', source, fireworkKey, true)

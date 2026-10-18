@@ -157,6 +157,7 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType, fromCo
     if not hasActiveFirework or hasActiveFirework == 0 then
         Fireworks.Debug('Failed to create firework prop')
         ClearPedTasks(playerPed)
+        TriggerServerEvent('plenix-fireworks:finished')
         return
     end
 
@@ -269,6 +270,7 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType, fromCo
     end
     
     hasActiveFirework = nil
+    TriggerServerEvent('plenix-fireworks:finished')
 end)
 
 -----------------------------------------------------------
