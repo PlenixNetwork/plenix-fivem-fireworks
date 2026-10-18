@@ -11,7 +11,7 @@ Config = {}
 Config.General = {
     Debug = false,                          -- Enable debug mode for console logs
     Framework = 'esx',                      -- Framework: 'esx', 'qb', 'standalone'
-    Inventory = 'ox',                       -- Inventory: 'ox', 'qb', 'esx' (ox_inventory recommended)
+    Inventory = 'ox',                       -- Inventory: 'ox', 'qb', 'esx', 'qs' (ox_inventory recommended)
     Enable3DText = true,                    -- Show 3D countdown text on firework box
     DisableMultipleFireworks = false,       -- If true, player can only have one active firework at a time
 }
@@ -19,10 +19,13 @@ Config.General = {
 -----------------------------------------------------------
 -- FRAMEWORK INITIALIZATION
 -----------------------------------------------------------
-if Config.General.Framework == 'esx' then
-    ESX = exports['es_extended']:getSharedObject()
-elseif Config.General.Framework == 'qb' then
-    QBCore = exports['qb-core']:GetCoreObject()
+-- pcall so a missing/not-yet-started framework doesn't abort loading the rest of this config
+if Config.General.Framework == 'esx' and GetResourceState('es_extended') ~= 'missing' then
+    local ok, obj = pcall(function() return exports['es_extended']:getSharedObject() end)
+    if ok then ESX = obj end
+elseif Config.General.Framework == 'qb' and GetResourceState('qb-core') ~= 'missing' then
+    local ok, obj = pcall(function() return exports['qb-core']:GetCoreObject() end)
+    if ok then QBCore = obj end
 end
 
 -----------------------------------------------------------
@@ -81,9 +84,9 @@ Config.Notification = function(message, time, type)
         TriggerEvent('QBCore:Notify', message, type, time)
     else
         -- Standalone / Default
-        SetNotificationTextEntry('STRING')
-        AddTextComponentString(message)
-        DrawNotification(false, true)
+        BeginTextCommandThefeedPost('STRING')
+        AddTextComponentSubstringPlayerName(message)
+        EndTextCommandThefeedPostTicker(false, true)
     end
 end
 

@@ -67,6 +67,11 @@ local function HasItem(source, itemName)
         if not xPlayer then return false end
         local item = xPlayer.getInventoryItem(itemName)
         return item and item.count > 0
+    elseif Config.General.Inventory == 'qs' then
+        local ok, amount = pcall(function()
+            return exports['qs-inventory']:GetItemTotalAmount(source, itemName)
+        end)
+        return ok and amount and amount > 0
     end
     return false
 end
@@ -93,6 +98,10 @@ local function RemoveItem(source, itemName, amount)
         if xPlayer then
             xPlayer.removeInventoryItem(itemName, amount)
         end
+    elseif Config.General.Inventory == 'qs' then
+        pcall(function()
+            exports['qs-inventory']:RemoveItem(source, itemName, amount)
+        end)
     end
 end
 
@@ -312,6 +321,26 @@ Citizen.CreateThread(function()
         end
         
         DebugPrint('ESX integration complete', '^2')
+    elseif Config.General.Inventory == 'qs' then
+        -- qs-inventory uses the framework's usable item registration
+        if GetResourceState('qs-inventory') ~= 'started' then
+            print('^1[Fireworks] ERROR: qs-inventory is not started!^0')
+            return
+        end
+
+        for key, firework in pairs(Config.Fireworks) do
+            if firework.item then
+                local onUse = function(source) UseFirework(source, key) end
+                if Config.General.Framework == 'qb' and QBCore then
+                    QBCore.Functions.CreateUseableItem(firework.item, onUse)
+                elseif ESX then
+                    ESX.RegisterUsableItem(firework.item, onUse)
+                else
+                    exports['qs-inventory']:CreateUsableItem(firework.item, onUse)
+                end
+                DebugPrint('Registered qs-inventory item: ' .. firework.item, '^2')
+            end
+        end
     else
         print('^1[Fireworks] ERROR: Unknown inventory: ' .. tostring(Config.General.Inventory) .. '^0')
     end

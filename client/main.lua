@@ -145,8 +145,14 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType, fromCo
     -- Load prop model
     local propHash = RequestPropModel(fireworkData.prop)
 
-    -- Create firework box prop
+    -- Create firework box prop (networked so others see it; falls back to a local prop
+    -- on servers with entity lockdown, where client-created networked entities are blocked)
     hasActiveFirework = CreateObject(propHash, playerOffset.x, playerOffset.y, playerOffset.z, true, false, false)
+    if not hasActiveFirework or hasActiveFirework == 0 or not DoesEntityExist(hasActiveFirework) then
+        Fireworks.Debug('Networked prop blocked, using local prop')
+        hasActiveFirework = CreateObject(propHash, playerOffset.x, playerOffset.y, playerOffset.z, false, false, false)
+    end
+    SetModelAsNoLongerNeeded(propHash)
     
     if not hasActiveFirework or hasActiveFirework == 0 then
         Fireworks.Debug('Failed to create firework prop')
@@ -186,11 +192,12 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType, fromCo
             goto cleanup
         end
         
-        countdown = countdown - 50
+        -- Draw every frame, otherwise the 3D text flickers
         if Config.General.Enable3DText then
             DrawText3D(boxCoords, tostring(math.ceil(countdown / 1000)))
         end
-        Wait(50)
+        Wait(0)
+        countdown = countdown - GetFrameTime() * 1000
     end
 
     -- Load all particle effects
@@ -210,8 +217,8 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType, fromCo
         
         remainingShoots = remainingShoots - 1
         
-        for _, particle in pairs(fireworkData.particles) do
-            UseParticleFxAsset(particle.name)
+        for _, particle in ipairs(fireworkData.particles) do
+            UseParticleFxAssetNextCall(particle.name)
             
             local offsetX = particle.randomizeXY and math.random(-10, 10) or 0.0
             local offsetY = particle.randomizeXY and math.random(-10, 10) or 0.0
