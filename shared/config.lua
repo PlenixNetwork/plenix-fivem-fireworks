@@ -104,8 +104,43 @@ Config.Translate = {
 }
 
 -----------------------------------------------------------
+-- COLOR PALETTES
+-- Tints for a particle's `colors` list: RGB from 0.0 to 1.0 (not 0-255)
+-- Tint the scr_indep_fireworks effects (starburst, trailburst, fountain, shotburst) and the
+-- scr_hr_lny_races launch effects (game build 3407+); effects with their own colors
+-- (*_rgw, *_rwb, proj_indep_firework bursts) mix with the tint unpredictably
+-----------------------------------------------------------
+Config.Palettes = {
+    Halloween = {
+        { 1.0, 0.4, 0.0 },                  -- Pumpkin orange
+        { 0.55, 0.0, 1.0 },                 -- Witch purple
+        { 0.35, 1.0, 0.0 },                 -- Toxic green
+    },
+    Christmas = {
+        { 1.0, 0.0, 0.0 },                  -- Red
+        { 0.0, 0.85, 0.15 },                -- Green
+        { 1.0, 1.0, 1.0 },                  -- White
+        { 1.0, 0.75, 0.15 },                -- Gold
+    },
+    Gold = {
+        { 1.0, 0.75, 0.15 },
+    },
+}
+
+-----------------------------------------------------------
 -- FIREWORK TYPES
 -- Define different types of fireworks with their effects
+--
+-- Particle options:
+--   name / effect     Particle dictionary and effect (non-looped effects only)
+--   scale             Effect size (other players see at most 10.0)
+--   plusHeight        Height above the box where the effect starts
+--   randomizeXY       Random offset of up to 10 m around the box
+--   timeToNextShoot   Wait after this particle (ms)
+--   colors            Optional: palette to tint with, one color picked per shot
+--   chance            Optional: 0.0-1.0 chance to fire on each shot (default always)
+--
+-- Particles whose dictionary is not in the server's game build are skipped
 -----------------------------------------------------------
 Config.Fireworks = {
     [1] = {
@@ -246,6 +281,116 @@ Config.Fireworks = {
             { name = 'proj_indep_firework', effect = 'scr_indep_firework_air_burst', scale = 4.0, plusHeight = 60.0, randomizeXY = false, timeToNextShoot = 50 },
             { name = 'proj_indep_firework_v2', effect = 'scr_firework_indep_burst_rwb', scale = 3.5, plusHeight = 60.0, randomizeXY = false, timeToNextShoot = 50 },
             { name = 'proj_indep_firework', effect = 'scr_indep_firework_grd_burst', scale = 3.0, plusHeight = 60.0, randomizeXY = false, timeToNextShoot = 10 },
+        },
+    },
+
+    -----------------------------------------------------------
+    -- HALLOWEEN
+    -- Orange, purple and green bursts; the accents at the box need game build
+    -- 2699+ (rider bursts) and 2944+ (ghost smoke) and are skipped below that
+    -----------------------------------------------------------
+    [10] = {
+        name = 'Halloween Night',
+        item = 'firework_halloween',
+        itemRemovable = true,
+        command = 'firework_halloween',
+        shoots = 40,
+        prop = 'ind_prop_firework_03',
+        timeToStart = 3000,
+        timeBetweenShoots = 900,
+        particles = {
+            { name = 'scr_indep_fireworks', effect = 'scr_indep_firework_trailburst', scale = 2.5, plusHeight = 10.0, randomizeXY = true, timeToNextShoot = 150, colors = Config.Palettes.Halloween },
+            { name = 'scr_indep_fireworks', effect = 'scr_indep_firework_starburst', scale = 2.0, plusHeight = 50.0, randomizeXY = true, timeToNextShoot = 300, colors = Config.Palettes.Halloween },
+            { name = 'scr_indep_fireworks', effect = 'scr_indep_firework_starburst', scale = 1.5, plusHeight = 55.0, randomizeXY = true, timeToNextShoot = 150, colors = Config.Palettes.Halloween },
+            { name = 'scr_sum2_hal', effect = 'scr_sum2_hal_rider_death_orange', scale = 2.0, plusHeight = 0.5, randomizeXY = false, timeToNextShoot = 0, chance = 0.3 },
+            { name = 'scr_sum2_hal', effect = 'scr_sum2_hal_rider_death_green', scale = 2.0, plusHeight = 0.5, randomizeXY = false, timeToNextShoot = 0, chance = 0.3 },
+        },
+    },
+
+    [11] = {
+        name = 'Haunted Battery',
+        item = 'firework_halloween_battery',
+        itemRemovable = true,
+        command = 'firework_halloween_battery',
+        shoots = 50,
+        prop = 'ind_prop_firework_03',
+        timeToStart = 3000,
+        timeBetweenShoots = 400,
+        particles = {
+            { name = 'scr_indep_fireworks', effect = 'scr_indep_firework_trailburst', scale = 3.0, plusHeight = 10.0, randomizeXY = true, timeToNextShoot = 100, colors = Config.Palettes.Halloween },
+            { name = 'scr_indep_fireworks', effect = 'scr_indep_firework_starburst', scale = 3.0, plusHeight = 60.0, randomizeXY = true, timeToNextShoot = 50, colors = Config.Palettes.Halloween },
+            { name = 'scr_indep_fireworks', effect = 'scr_indep_firework_starburst', scale = 2.5, plusHeight = 60.0, randomizeXY = true, timeToNextShoot = 50, colors = Config.Palettes.Halloween },
+            { name = 'scr_indep_fireworks', effect = 'scr_indep_firework_trailburst', scale = 2.0, plusHeight = 60.0, randomizeXY = true, timeToNextShoot = 10, colors = Config.Palettes.Halloween },
+            { name = 'scr_srr_hal', effect = 'scr_srr_hal_appear_smoke_deer', scale = 2.5, plusHeight = 0.5, randomizeXY = false, timeToNextShoot = 0, chance = 0.15 },
+        },
+    },
+
+    [12] = {
+        name = 'Cauldron Fountain',
+        item = 'fountain_halloween',
+        itemRemovable = true,
+        command = 'fountain_halloween',
+        shoots = 100,
+        prop = 'ind_prop_firework_04',
+        timeToStart = 3000,
+        timeBetweenShoots = 700,
+        particles = {
+            { name = 'scr_indep_fireworks', effect = 'scr_indep_firework_fountain', scale = 2.0, plusHeight = 0.25, randomizeXY = false, timeToNextShoot = 500, colors = Config.Palettes.Halloween },
+            { name = 'scr_srr_hal', effect = 'scr_srr_hal_appear_smoke_mtlion', scale = 2.0, plusHeight = 0.5, randomizeXY = false, timeToNextShoot = 0, chance = 0.1 },
+        },
+    },
+
+    -----------------------------------------------------------
+    -- CHRISTMAS
+    -- Red, green, white and gold; the gold star rocket needs game build 3407+
+    -- and is skipped below that
+    -----------------------------------------------------------
+    [13] = {
+        name = 'Christmas Night',
+        item = 'firework_christmas',
+        itemRemovable = true,
+        command = 'firework_christmas',
+        shoots = 40,
+        prop = 'ind_prop_firework_03',
+        timeToStart = 3000,
+        timeBetweenShoots = 900,
+        particles = {
+            { name = 'scr_indep_fireworks', effect = 'scr_indep_firework_trailburst', scale = 2.5, plusHeight = 10.0, randomizeXY = true, timeToNextShoot = 150, colors = Config.Palettes.Christmas },
+            { name = 'proj_xmas_firework', effect = 'scr_firework_xmas_burst_rgw', scale = 1.5, plusHeight = 50.0, randomizeXY = true, timeToNextShoot = 200 },
+            { name = 'proj_xmas_firework', effect = 'scr_firework_xmas_ring_burst_rgw', scale = 1.5, plusHeight = 50.0, randomizeXY = true, timeToNextShoot = 200 },
+            { name = 'proj_xmas_firework', effect = 'scr_firework_xmas_spiral_burst_rgw', scale = 1.5, plusHeight = 50.0, randomizeXY = true, timeToNextShoot = 200, chance = 0.5 },
+            { name = 'scr_hr_lny_races', effect = 'scr_hr_lny_firework_launch_shape_star', scale = 1.0, plusHeight = 0.0, randomizeXY = false, timeToNextShoot = 0, colors = Config.Palettes.Gold, chance = 0.2 },
+        },
+    },
+
+    [14] = {
+        name = 'Christmas Battery',
+        item = 'firework_christmas_battery',
+        itemRemovable = true,
+        command = 'firework_christmas_battery',
+        shoots = 50,
+        prop = 'ind_prop_firework_03',
+        timeToStart = 3000,
+        timeBetweenShoots = 400,
+        particles = {
+            { name = 'scr_indep_fireworks', effect = 'scr_indep_firework_trailburst', scale = 3.0, plusHeight = 10.0, randomizeXY = true, timeToNextShoot = 100, colors = Config.Palettes.Christmas },
+            { name = 'scr_indep_fireworks', effect = 'scr_indep_firework_starburst', scale = 3.0, plusHeight = 60.0, randomizeXY = true, timeToNextShoot = 50, colors = Config.Palettes.Christmas },
+            { name = 'proj_xmas_firework', effect = 'scr_firework_xmas_repeat_burst_rgw', scale = 1.5, plusHeight = 60.0, randomizeXY = true, timeToNextShoot = 50 },
+            { name = 'proj_xmas_firework', effect = 'scr_firework_xmas_burst_rgw', scale = 1.5, plusHeight = 60.0, randomizeXY = true, timeToNextShoot = 10 },
+        },
+    },
+
+    [15] = {
+        name = 'Christmas Tree Fountain',
+        item = 'fountain_christmas',
+        itemRemovable = true,
+        command = 'fountain_christmas',
+        shoots = 100,
+        prop = 'ind_prop_firework_04',
+        timeToStart = 3000,
+        timeBetweenShoots = 700,
+        particles = {
+            { name = 'scr_indep_fireworks', effect = 'scr_indep_firework_fountain', scale = 2.0, plusHeight = 0.25, randomizeXY = false, timeToNextShoot = 500, colors = Config.Palettes.Christmas },
         },
     },
 }

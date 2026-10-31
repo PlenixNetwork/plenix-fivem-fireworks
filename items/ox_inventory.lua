@@ -98,6 +98,60 @@
         description = "3 massive explosions to end the show",
     },
 
+    ["firework_halloween"] = {
+        label = "Halloween Rocket",
+        weight = 500,
+        stack = true,
+        close = true,
+        consume = 0,
+        description = "Orange, purple and green bursts for a spooky night",
+    },
+
+    ["firework_halloween_battery"] = {
+        label = "Haunted Battery",
+        weight = 800,
+        stack = true,
+        close = true,
+        consume = 0,
+        description = "Rapid orange, purple and green explosions with ghostly smoke",
+    },
+
+    ["fountain_halloween"] = {
+        label = "Cauldron Fountain",
+        weight = 500,
+        stack = true,
+        close = true,
+        consume = 0,
+        description = "Bubbling ground fountain in Halloween colors",
+    },
+
+    ["firework_christmas"] = {
+        label = "Christmas Rocket",
+        weight = 500,
+        stack = true,
+        close = true,
+        consume = 0,
+        description = "Red, green, white and gold Christmas bursts",
+    },
+
+    ["firework_christmas_battery"] = {
+        label = "Christmas Battery",
+        weight = 800,
+        stack = true,
+        close = true,
+        consume = 0,
+        description = "Rapid red, green, white and gold explosions",
+    },
+
+    ["fountain_christmas"] = {
+        label = "Christmas Tree Fountain",
+        weight = 500,
+        stack = true,
+        close = true,
+        consume = 0,
+        description = "Ground fountain in Christmas colors",
+    },
+
     -- Only add lighter if you don't already have one
     ["lighter"] = {
         label = "Lighter",

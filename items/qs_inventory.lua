@@ -112,6 +112,78 @@
     description = '3 massive explosions to end the show'
 },
 
+['firework_halloween'] = {
+    name = 'firework_halloween',
+    label = 'Halloween Rocket',
+    weight = 500,
+    type = 'item',
+    image = 'firework_halloween.png',
+    unique = false,
+    useable = true,
+    shouldClose = true,
+    description = 'Orange, purple and green bursts for a spooky night'
+},
+
+['firework_halloween_battery'] = {
+    name = 'firework_halloween_battery',
+    label = 'Haunted Battery',
+    weight = 800,
+    type = 'item',
+    image = 'firework_halloween_battery.png',
+    unique = false,
+    useable = true,
+    shouldClose = true,
+    description = 'Rapid orange, purple and green explosions with ghostly smoke'
+},
+
+['fountain_halloween'] = {
+    name = 'fountain_halloween',
+    label = 'Cauldron Fountain',
+    weight = 500,
+    type = 'item',
+    image = 'fountain_halloween.png',
+    unique = false,
+    useable = true,
+    shouldClose = true,
+    description = 'Bubbling ground fountain in Halloween colors'
+},
+
+['firework_christmas'] = {
+    name = 'firework_christmas',
+    label = 'Christmas Rocket',
+    weight = 500,
+    type = 'item',
+    image = 'firework_christmas.png',
+    unique = false,
+    useable = true,
+    shouldClose = true,
+    description = 'Red, green, white and gold Christmas bursts'
+},
+
+['firework_christmas_battery'] = {
+    name = 'firework_christmas_battery',
+    label = 'Christmas Battery',
+    weight = 800,
+    type = 'item',
+    image = 'firework_christmas_battery.png',
+    unique = false,
+    useable = true,
+    shouldClose = true,
+    description = 'Rapid red, green, white and gold explosions'
+},
+
+['fountain_christmas'] = {
+    name = 'fountain_christmas',
+    label = 'Christmas Tree Fountain',
+    weight = 500,
+    type = 'item',
+    image = 'fountain_christmas.png',
+    unique = false,
+    useable = true,
+    shouldClose = true,
+    description = 'Ground fountain in Christmas colors'
+},
+
 ['lighter'] = {
     name = 'lighter',
     label = 'Lighter',

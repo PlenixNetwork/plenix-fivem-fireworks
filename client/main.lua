@@ -48,14 +48,30 @@ end
 -----------------------------------------------------------
 -- PARTICLE LOADING
 -----------------------------------------------------------
-local function RequestParticleAsset(dict)
-    if HasNamedPtfxAssetLoaded(dict) then return end
-    
-    RequestNamedPtfxAsset(dict)
-    local timeout = 0
-    while not HasNamedPtfxAssetLoaded(dict) and timeout < 1000 do
-        timeout = timeout + 1
-        Wait(10)
+local function RequestParticleAssets(particles)
+    for _, particle in ipairs(particles) do
+        RequestNamedPtfxAsset(particle.name)
+    end
+end
+
+-- Waits until every asset has loaded or Fireworks.ParticleLoadTimeout has passed since they were
+-- requested; the shot loop skips the effects of an asset that isn't loaded (yet), so a DLC
+-- dictionary missing from the game build can't stall the show
+local function WaitForParticleAssets(particles, requestedAt)
+    local deadline = requestedAt + Fireworks.ParticleLoadTimeout
+    local checked = {}
+
+    for _, particle in ipairs(particles) do
+        local dict = particle.name
+        if not checked[dict] then
+            checked[dict] = true
+            while not HasNamedPtfxAssetLoaded(dict) and GetGameTimer() < deadline do
+                Wait(10)
+            end
+            if not HasNamedPtfxAssetLoaded(dict) then
+                Fireworks.Debug('Particle asset not loaded, its effects are skipped until it is:', dict)
+            end
+        end
     end
 end
 
@@ -125,6 +141,10 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType, fromCo
     local fireworkId = fireworkIdCounter
     
     Fireworks.Debug('Starting firework:', fireworkType, '(ID:', fireworkId, ')')
+
+    -- Stream the particle assets in while the box is placed and the countdown runs
+    local assetsRequestedAt = GetGameTimer()
+    RequestParticleAssets(fireworkData.particles)
 
     local playerPed = PlayerPedId()
     local playerOffset = GetOffsetFromEntityInWorldCoords(playerPed, 0.0, 0.6, 0.0)
@@ -201,10 +221,8 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType, fromCo
         countdown = countdown - GetFrameTime() * 1000
     end
 
-    -- Load all particle effects
-    for _, particle in pairs(fireworkData.particles) do
-        RequestParticleAsset(particle.name)
-    end
+    -- Wait for any particle asset still loading (usually all done during the countdown)
+    WaitForParticleAssets(fireworkData.particles, assetsRequestedAt)
 
     Fireworks.Debug('Starting firework shots, total:', remainingShoots)
 
@@ -219,21 +237,29 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType, fromCo
         remainingShoots = remainingShoots - 1
         
         for _, particle in ipairs(fireworkData.particles) do
-            UseParticleFxAssetNextCall(particle.name)
-            
-            local offsetX = particle.randomizeXY and math.random(-10, 10) or 0.0
-            local offsetY = particle.randomizeXY and math.random(-10, 10) or 0.0
-            
-            StartNetworkedParticleFxNonLoopedAtCoord(
-                particle.effect,
-                boxCoords.x + offsetX,
-                boxCoords.y + offsetY,
-                boxCoords.z + particle.plusHeight,
-                0.0, 0.0, 0.0,
-                particle.scale,
-                false, false, false
-            )
-            
+            if HasNamedPtfxAssetLoaded(particle.name) and (not particle.chance or math.random() < particle.chance) then
+                UseParticleFxAssetNextCall(particle.name)
+
+                -- Tint only when configured, so effects with built-in colors keep them
+                if particle.colors then
+                    local color = particle.colors[math.random(#particle.colors)]
+                    SetParticleFxNonLoopedColour(color[1] + 0.0, color[2] + 0.0, color[3] + 0.0)
+                end
+
+                local offsetX = particle.randomizeXY and math.random(-10, 10) or 0.0
+                local offsetY = particle.randomizeXY and math.random(-10, 10) or 0.0
+
+                StartNetworkedParticleFxNonLoopedAtCoord(
+                    particle.effect,
+                    boxCoords.x + offsetX,
+                    boxCoords.y + offsetY,
+                    boxCoords.z + particle.plusHeight,
+                    0.0, 0.0, 0.0,
+                    particle.scale,
+                    false, false, false
+                )
+            end
+
             Wait(particle.timeToNextShoot)
             
             -- Check if cancelled during particle loop

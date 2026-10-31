@@ -110,14 +110,18 @@ end
 -- Checked here, before any item is removed, so a blocked firework never costs an item
 -----------------------------------------------------------
 local activeFireworkUntil = {}   -- [source] = os.time() when the firework is surely over
+local WAIT_OVERRUN_MS = 50       -- a client Wait() can run up to a frame long (50 ms covers ~20 fps)
 
+-- Fallback for a client that never reports 'finished', so it errs long: it counts frame
+-- overrun on every Wait(), the client's 500 ms fade-out and os.time() dropping the start second
 local function GetFireworkDurationSeconds(firework)
-    local perShot = firework.timeBetweenShoots or 300
-    for _, particle in ipairs(firework.particles or {}) do
+    local particles = firework.particles or {}
+    local perShot = (firework.timeBetweenShoots or 300) + (#particles + 1) * WAIT_OVERRUN_MS
+    for _, particle in ipairs(particles) do
         perShot = perShot + (particle.timeToNextShoot or 0)
     end
-    local totalMs = 1500 + (firework.timeToStart or 0) + (firework.shoots or 1) * perShot
-    return math.ceil(totalMs / 1000) + 5 -- small safety margin
+    local totalMs = 1500 + (firework.timeToStart or 0) + Fireworks.ParticleLoadTimeout + (firework.shoots or 1) * perShot + 500
+    return math.ceil(totalMs / 1000) + 6 -- safety margin, plus 1 s for os.time()
 end
 
 local function CanStartFirework(source)

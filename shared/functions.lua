@@ -5,6 +5,11 @@
 
 Fireworks = Fireworks or {}
 
+-- Longest wait (ms) for particle assets to load, counted from when they are requested as the
+-- box is placed, so it normally overlaps the countdown; effects of an asset still missing then
+-- (e.g. a DLC dictionary not in the server's game build) are skipped until it loads
+Fireworks.ParticleLoadTimeout = 3000
+
 -----------------------------------------------------------
 -- DEBUG LOGGING
 -----------------------------------------------------------
