@@ -5,7 +5,7 @@ lua54 'yes'
 name 'plenix-fivem-fireworks'
 author 'Plenix Network'
 description 'Advanced Fireworks System for FiveM with multiple firework types, particle effects, and framework support'
-version '2.2.0'
+version '3.0.0'
 
 -- Shared Scripts (loaded on both client and server)
 shared_scripts {
