@@ -239,9 +239,19 @@ local function HasCommandPermission(source)
 end
 
 -----------------------------------------------------------
--- COMMAND PERMISSION REQUEST
+-- LAUNCH MENU REQUESTS
 -----------------------------------------------------------
-RegisterNetEvent('plenix-fireworks:requestCommand', function(fireworkKey)
+RegisterNetEvent('plenix-fireworks:requestMenu', function()
+    local source = source
+
+    if not HasCommandPermission(source) then
+        return TriggerClientEvent('plenix-fireworks:notification', source, 'NO_PERMISSION', 5000, 'error')
+    end
+
+    TriggerClientEvent('plenix-fireworks:openMenu', source)
+end)
+
+RegisterNetEvent('plenix-fireworks:requestLaunch', function(fireworkKey)
     local source = source
     
     if not HasCommandPermission(source) then
@@ -264,12 +274,12 @@ RegisterNetEvent('plenix-fireworks:requestCommand', function(fireworkKey)
     end
     MarkFireworkActive(source, firework)
     
-    -- Pass true to indicate this is from a command
+    -- Pass true to indicate this is from the menu
     TriggerClientEvent('plenix-fireworks:startFirework', source, fireworkKey, true)
 end)
 
 -----------------------------------------------------------
--- STOP FIREWORK COMMANDS
+-- STOP FIREWORK REQUESTS (menu buttons)
 -----------------------------------------------------------
 RegisterNetEvent('plenix-fireworks:requestStopLast', function()
     local source = source
@@ -411,7 +421,7 @@ RegisterCommand('fireworks_debug', function(source)
     print('ox_inventory state:', GetResourceState('ox_inventory'))
     print('Fireworks configured:')
     for key, fw in pairs(Config.Fireworks) do
-        print('  [' .. key .. '] item=' .. tostring(fw.item))
+        print('  [' .. key .. '] item=' .. tostring(fw.item) .. ' category=' .. tostring(fw.category))
     end
     print('=======================')
 end, true)

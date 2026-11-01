@@ -15,10 +15,25 @@ shared_scripts {
 
 -- Client Scripts
 client_scripts {
-    'client/main.lua'
+    'client/main.lua',
+    'client/nui.lua'
 }
 
 -- Server Scripts
 server_scripts {
     'server/main.lua'
+}
+
+-- NUI Configuration
+ui_page 'ui/index.html'
+
+-- Files accessible to NUI
+files {
+    -- UI Files
+    'ui/index.html',
+    'ui/css/main.css',
+    'ui/js/main.js',
+
+    -- Item images (shown on the menu cards)
+    'items/images/*.png'
 }

@@ -51,7 +51,7 @@ function Fireworks.GetAllFireworkTypes()
             key = key,
             name = data.name or ('Firework ' .. key),
             item = data.item,
-            command = data.command,
+            category = data.category,
             shoots = data.shoots
         })
     end

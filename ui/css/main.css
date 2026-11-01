@@ -1,0 +1,383 @@
+/*
+ * Plenix FiveM Fireworks - Main Stylesheet
+ * Launch menu, styled like the Plenix EAS menu
+ */
+
+/* ========================================
+   ROOT VARIABLES
+   ======================================== */
+:root {
+    --font-primary: 'Roboto', 'Arial', sans-serif;
+
+    /* Menu palette: brand = indigo, surfaces = gray */
+    --brand-400: #818cf8;
+    --brand-500: #6366f1;
+    --brand-600: #4f46e5;
+    --surface-0: #030712;
+    --surface-200: #111827;
+    --surface-300: #1f2937;
+    --surface-400: #374151;
+    --surface-500: #6b7280;
+    --surface-600: #9ca3af;
+    --danger-400: #f87171;
+    --danger-500: #ef4444;
+
+    --transition-fast: 0.2s ease;
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-primary);
+    background: transparent;
+    color: #ffffff;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    user-select: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ========================================
+   MENU CONTAINER
+   ======================================== */
+.menu-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.menu-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Transparent so the game stays visible behind the menu; still catches clicks to close */
+    background: transparent;
+}
+
+.menu-box {
+    position: relative;
+    width: 90%;
+    max-width: 860px;
+    max-height: 90vh;
+    background: linear-gradient(145deg, rgba(17, 24, 39, 0.94) 0%, rgba(3, 7, 18, 0.94) 100%);
+    border: 2px solid var(--surface-300);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    animation: menuEnter 0.3s ease-out;
+}
+
+.menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 25px;
+    background: linear-gradient(90deg, var(--brand-600), var(--brand-500));
+    color: white;
+}
+
+.menu-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.menu-close-btn {
+    width: 35px;
+    height: 35px;
+    border: none;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.menu-close-btn:hover {
+    background: rgba(0, 0, 0, 0.5);
+    transform: rotate(90deg);
+}
+
+.menu-content {
+    padding: 25px;
+    max-height: calc(90vh - 80px);
+    overflow-y: auto;
+}
+
+/* ========================================
+   CATEGORY TABS
+   ======================================== */
+.category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 25px;
+}
+
+.category-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--surface-300);
+    border-radius: 8px;
+    color: var(--surface-600);
+    font-family: var(--font-primary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.category-tab i {
+    color: var(--brand-400);
+}
+
+.category-tab:hover {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--brand-500);
+    color: white;
+}
+
+.category-tab.selected {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--brand-500);
+    color: white;
+}
+
+/* ========================================
+   MENU SECTIONS
+   ======================================== */
+.menu-section {
+    margin-bottom: 20px;
+}
+
+.menu-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--surface-600);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--surface-300);
+}
+
+.menu-section h3 i {
+    color: var(--brand-400);
+}
+
+/* ========================================
+   FIREWORK GRID
+   ======================================== */
+.firework-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.firework-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 15px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    text-align: center;
+}
+
+.firework-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--surface-400);
+    transform: translateY(-2px);
+}
+
+.firework-item.selected {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--brand-500);
+}
+
+.firework-image {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.firework-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.firework-image i {
+    font-size: 28px;
+    color: var(--brand-400);
+}
+
+.firework-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+}
+
+.firework-meta {
+    font-size: 11px;
+    color: var(--surface-500);
+}
+
+/* ========================================
+   STATUS & ACTIONS
+   ======================================== */
+.menu-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--surface-500);
+}
+
+.menu-status i {
+    color: var(--brand-400);
+}
+
+.menu-status.has-active {
+    color: var(--surface-600);
+}
+
+.menu-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 15px 25px;
+    border: none;
+    border-radius: 10px;
+    font-family: var(--font-primary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.secondary-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid var(--surface-400);
+}
+
+.secondary-btn:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: var(--danger-500);
+    color: var(--danger-400);
+}
+
+.launch-btn {
+    flex: 1.5;
+    background: linear-gradient(90deg, var(--brand-600), var(--brand-500));
+    color: white;
+}
+
+.launch-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
+}
+
+.launch-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   MENU FOOTER
+   ======================================== */
+.menu-footer {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--surface-300);
+    text-align: center;
+    font-size: 12px;
+}
+
+.menu-footer a {
+    color: var(--surface-500);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+.menu-footer a:hover {
+    color: var(--brand-400);
+}
+
+/* ========================================
+   SCROLLBAR
+   ======================================== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(3, 7, 18, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--surface-400);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--surface-500);
+}
+
+/* ========================================
+   KEYFRAME ANIMATIONS
+   ======================================== */
+@keyframes menuEnter {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

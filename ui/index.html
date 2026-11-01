@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fireworks</title>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <!-- Launch Menu -->
+    <div id="menu-container" class="menu-container hidden">
+        <div class="menu-overlay"></div>
+        <div class="menu-box">
+            <div class="menu-header">
+                <h2><i class="fas fa-rocket"></i> <span id="menu-title">Fireworks</span></h2>
+                <button id="menu-close-btn" class="menu-close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="menu-content">
+                <!-- Category Tabs -->
+                <div id="category-tabs" class="category-tabs">
+                    <!-- Categories will be populated here -->
+                </div>
+
+                <!-- Firework Selection -->
+                <div class="menu-section">
+                    <h3><i class="fas fa-list"></i> <span id="menu-select-label">Select a firework</span></h3>
+                    <div id="firework-grid" class="firework-grid">
+                        <!-- Fireworks will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Status & Actions -->
+                <div class="menu-status">
+                    <i class="fas fa-fire-flame-curved"></i> <span id="active-count">Active fireworks: 0</span>
+                </div>
+                <div class="menu-actions">
+                    <button id="stop-last-btn" class="action-btn secondary-btn">
+                        <i class="fas fa-stop"></i> <span id="stop-last-label">Stop last</span>
+                    </button>
+                    <button id="stop-all-btn" class="action-btn secondary-btn">
+                        <i class="fas fa-ban"></i> <span id="stop-all-label">Stop all</span>
+                    </button>
+                    <button id="launch-btn" class="action-btn launch-btn" disabled>
+                        <i class="fas fa-rocket"></i> <span id="launch-label">Launch</span>
+                    </button>
+                </div>
+
+                <!-- Footer -->
+                <div class="menu-footer">
+                    <a href="https://plenix.net" class="external-link">Plenix Network</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+</body>
+</html>

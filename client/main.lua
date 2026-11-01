@@ -6,7 +6,25 @@
 local hasActiveFirework = nil
 local activeFireworks = {}           -- Track all active fireworks { [id] = { prop = entity, cancelled = false } }
 local fireworkIdCounter = 0          -- Counter for unique firework IDs
-local lastCommandFireworkId = nil    -- Last firework placed via command
+local lastMenuFireworkId = nil       -- Last firework placed from the menu
+
+-----------------------------------------------------------
+-- MENU FIREWORK COUNT
+-----------------------------------------------------------
+function Fireworks.CountMenuFireworks()
+    local count = 0
+    for _, firework in pairs(activeFireworks) do
+        if firework.fromMenu and not firework.cancelled then
+            count = count + 1
+        end
+    end
+    return count
+end
+
+-- Keeps the menu's "Active fireworks" line current (ignored while the menu is closed)
+local function RefreshMenuActive()
+    SendNUIMessage({ action = 'updateActive', count = Fireworks.CountMenuFireworks() })
+end
 
 -----------------------------------------------------------
 -- 3D TEXT DRAWING
@@ -94,35 +112,23 @@ local function RequestPropModel(model)
 end
 
 -----------------------------------------------------------
--- COMMAND REGISTRATION
+-- MENU COMMAND & KEYBIND
+-- The server checks the permission before the menu opens
 -----------------------------------------------------------
-Citizen.CreateThread(function()
-    for key, firework in pairs(Config.Fireworks) do
-        if firework.command then
-            RegisterCommand(firework.command, function()
-                TriggerServerEvent('plenix-fireworks:requestCommand', key)
-            end, false)
-            Fireworks.Debug('Registered command:', firework.command)
-        end
-    end
-    
-    -- Stop last firework command
-    RegisterCommand('stopfirework', function()
-        TriggerServerEvent('plenix-fireworks:requestStopLast')
+if Config.Menu.Command and Config.Menu.Command ~= '' then
+    RegisterCommand(Config.Menu.Command, function()
+        TriggerServerEvent('plenix-fireworks:requestMenu')
     end, false)
-    Fireworks.Debug('Registered command: stopfirework')
-    
-    -- Stop all fireworks command
-    RegisterCommand('stopfireworks', function()
-        TriggerServerEvent('plenix-fireworks:requestStopAll')
-    end, false)
-    Fireworks.Debug('Registered command: stopfireworks')
-end)
+    Fireworks.Debug('Registered command:', Config.Menu.Command)
+
+    -- Listed in Settings > Key Bindings > FiveM, unbound unless Config.Menu.Keybind sets a default
+    RegisterKeyMapping(Config.Menu.Command, Config.Translate['MENU_KEYBIND'], 'keyboard', Config.Menu.Keybind or '')
+end
 
 -----------------------------------------------------------
 -- START FIREWORK EVENT
 -----------------------------------------------------------
-RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType, fromCommand)
+RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType, fromMenu)
     -- Check if player already has an active firework
     if Config.General.DisableMultipleFireworks and hasActiveFirework then
         Config.Notification(Config.Translate['CANNOT_START'], 4500, 'error')
@@ -188,12 +194,13 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType, fromCo
     activeFireworks[fireworkId] = {
         prop = hasActiveFirework,
         cancelled = false,
-        fromCommand = fromCommand or false
+        fromMenu = fromMenu or false
     }
     
-    -- If from command, track as last command firework
-    if fromCommand then
-        lastCommandFireworkId = fireworkId
+    -- If from the menu, track as last menu firework
+    if fromMenu then
+        lastMenuFireworkId = fireworkId
+        RefreshMenuActive()
     end
 
     -- Clear animation
@@ -289,10 +296,11 @@ RegisterNetEvent('plenix-fireworks:startFirework', function(fireworkType, fromCo
     
     -- Remove from tracking
     activeFireworks[fireworkId] = nil
+    RefreshMenuActive()
     
-    -- Clear last command firework if this was it
-    if lastCommandFireworkId == fireworkId then
-        lastCommandFireworkId = nil
+    -- Clear last menu firework if this was it
+    if lastMenuFireworkId == fireworkId then
+        lastMenuFireworkId = nil
     end
     
     hasActiveFirework = nil
@@ -315,9 +323,10 @@ end)
 -- STOP FIREWORK EVENTS
 -----------------------------------------------------------
 RegisterNetEvent('plenix-fireworks:stopLast', function()
-    if lastCommandFireworkId and activeFireworks[lastCommandFireworkId] then
-        Fireworks.Debug('Stopping last command firework (ID:', lastCommandFireworkId, ')')
-        activeFireworks[lastCommandFireworkId].cancelled = true
+    if lastMenuFireworkId and activeFireworks[lastMenuFireworkId] and not activeFireworks[lastMenuFireworkId].cancelled then
+        Fireworks.Debug('Stopping last menu firework (ID:', lastMenuFireworkId, ')')
+        activeFireworks[lastMenuFireworkId].cancelled = true
+        RefreshMenuActive()
         Config.Notification(Config.Translate['FIREWORK_STOPPED'] or 'Firework stopped', 3000, 'info')
     else
         Config.Notification(Config.Translate['NO_FIREWORK_TO_STOP'] or 'No active firework to stop', 3000, 'error')
@@ -327,14 +336,15 @@ end)
 RegisterNetEvent('plenix-fireworks:stopAll', function()
     local count = 0
     for id, firework in pairs(activeFireworks) do
-        if firework.fromCommand then
+        if firework.fromMenu and not firework.cancelled then
             firework.cancelled = true
             count = count + 1
         end
     end
     
     if count > 0 then
-        Fireworks.Debug('Stopping all command fireworks, count:', count)
+        RefreshMenuActive()
+        Fireworks.Debug('Stopping all menu fireworks, count:', count)
         Config.Notification(string.format(Config.Translate['FIREWORKS_STOPPED'] or '%d firework(s) stopped', count), 3000, 'info')
     else
         Config.Notification(Config.Translate['NO_FIREWORK_TO_STOP'] or 'No active fireworks to stop', 3000, 'error')

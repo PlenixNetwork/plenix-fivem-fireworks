@@ -37,22 +37,38 @@ Config.Items = {
 }
 
 -----------------------------------------------------------
--- COMMAND PERMISSIONS
--- Configure who can use firework commands
+-- LAUNCH MENU
+-- One command opens the menu to launch any firework without its item
+-----------------------------------------------------------
+Config.Menu = {
+    Command = 'fireworks',                  -- Chat command that opens the menu
+    Keybind = '',                           -- Optional default key (e.g. 'F7'), players can rebind it in Settings > Key Bindings
+    Categories = {                          -- Menu tabs, in this order; each firework's `category` picks one
+        { key = 'classic', label = 'Classic', icon = 'fa-star' },
+        { key = 'battery', label = 'Batteries', icon = 'fa-bolt' },
+        { key = 'fountain', label = 'Fountains', icon = 'fa-fire' },
+        { key = 'halloween', label = 'Halloween', icon = 'fa-ghost' },
+        { key = 'christmas', label = 'Christmas', icon = 'fa-tree' },
+    },
+}
+
+-----------------------------------------------------------
+-- MENU PERMISSIONS
+-- Configure who can open the launch menu (items can be used by anyone)
 -----------------------------------------------------------
 Config.Permissions = {
     -- Permission mode: 'ace', 'job', 'none'
     -- 'ace'  = Use ACE permissions (add to server.cfg)
     -- 'job'  = Use job-based permissions (ESX/QBCore)
-    -- 'none' = Commands disabled, only items work
+    -- 'none' = Menu disabled, only items work
     Mode = 'ace',
-    
-    -- Admin Bypass (always allow admins to use commands)
-    AdminBypass = true,                     -- If true, admins can always use commands
+
+    -- Admin Bypass (always allow admins to open the menu)
+    AdminBypass = true,                     -- If true, admins can always open the menu
     AdminPermission = 'command',            -- ACE permission that admins have (default: 'command')
-    
+
     -- ACE Permission Settings (when Mode = 'ace')
-    AcePermission = 'fireworks.use',        -- Permission required to use commands
+    AcePermission = 'fireworks.use',        -- Permission required to open the menu
     
     -- Job-based Settings (when Mode = 'job')
     -- Format: ['job_name'] = minimum_grade
@@ -97,10 +113,21 @@ Config.Translate = {
     ['CANNOT_START'] = "You can't set off several fireworks at once, wait until the current one goes off",
     ['NEED_LIGHTER'] = "You need to have a lighter!",
     ['YOU_PLACE_FIREWORK'] = "You placed the firework!",
-    ['NO_PERMISSION'] = "You don't have permission to use this command!",
+    ['NO_PERMISSION'] = "You don't have permission to use the fireworks menu!",
     ['FIREWORK_STOPPED'] = "Firework stopped!",
-    ['FIREWORKS_STOPPED'] = "All fireworks stopped!",
+    ['FIREWORKS_STOPPED'] = "%d firework(s) stopped!",
     ['NO_FIREWORK_TO_STOP'] = "No active firework to stop!",
+
+    -- Launch menu
+    ['MENU_TITLE'] = "Fireworks",
+    ['MENU_ALL'] = "All",
+    ['MENU_SELECT'] = "Select a firework",
+    ['MENU_SHOTS'] = "shots",
+    ['MENU_ACTIVE'] = "Active fireworks: %d",
+    ['MENU_LAUNCH'] = "Launch",
+    ['MENU_STOP_LAST'] = "Stop last",
+    ['MENU_STOP_ALL'] = "Stop all",
+    ['MENU_KEYBIND'] = "Open the fireworks menu",
 }
 
 -----------------------------------------------------------
@@ -147,7 +174,7 @@ Config.Fireworks = {
         name = 'Starburst Display',
         item = 'firework_1',                -- Item name or nil
         itemRemovable = true,               -- Remove item after use
-        command = 'firework_1',             -- Command name or nil
+        category = 'classic',               -- Menu tab (Config.Menu.Categories)
         shoots = 50,                        -- Number of shots
         prop = 'ind_prop_firework_03',      -- Prop model
         timeToStart = 3000,                 -- Time before first shot (ms)
@@ -163,7 +190,7 @@ Config.Fireworks = {
         name = 'Christmas Special',
         item = 'firework_2',
         itemRemovable = true,
-        command = 'firework_2',
+        category = 'christmas',
         shoots = 80,
         prop = 'ind_prop_firework_03',
         timeToStart = 3000,
@@ -179,7 +206,7 @@ Config.Fireworks = {
         name = 'Spiral Burst',
         item = 'firework_3',
         itemRemovable = true,
-        command = 'firework_3',
+        category = 'classic',
         shoots = 80,
         prop = 'ind_prop_firework_03',
         timeToStart = 3000,
@@ -196,7 +223,7 @@ Config.Fireworks = {
         name = 'Trail Burst',
         item = 'firework_4',
         itemRemovable = true,
-        command = 'firework_4',
+        category = 'classic',
         shoots = 50,
         prop = 'ind_prop_firework_03',
         timeToStart = 3000,
@@ -210,7 +237,7 @@ Config.Fireworks = {
         name = 'Fountain',
         item = 'fountain_1',
         itemRemovable = true,
-        command = 'fountain_1',
+        category = 'fountain',
         shoots = 100,
         prop = 'ind_prop_firework_04',
         timeToStart = 3000,
@@ -224,7 +251,7 @@ Config.Fireworks = {
         name = 'Battery Colorful Burst',
         item = 'firework_battery',
         itemRemovable = true,
-        command = 'firework_battery',
+        category = 'battery',
         shoots = 50,
         prop = 'ind_prop_firework_03',
         timeToStart = 3000,
@@ -242,7 +269,7 @@ Config.Fireworks = {
         name = 'Battery Fast Burst',
         item = 'firework_battery2',
         itemRemovable = true,
-        command = 'firework_battery2',
+        category = 'battery',
         shoots = 80,
         prop = 'ind_prop_firework_03',
         timeToStart = 3000,
@@ -256,7 +283,7 @@ Config.Fireworks = {
         name = 'Start Rocket',
         item = 'firework_start',
         itemRemovable = true,
-        command = 'firework_start',
+        category = 'classic',
         shoots = 1,
         prop = 'ind_prop_firework_03',
         timeToStart = 3000,
@@ -270,7 +297,7 @@ Config.Fireworks = {
         name = 'Finale Salute',
         item = 'firework_finale',
         itemRemovable = true,
-        command = 'firework_finale',
+        category = 'classic',
         shoots = 3,
         prop = 'ind_prop_firework_03',
         timeToStart = 3000,
@@ -293,7 +320,7 @@ Config.Fireworks = {
         name = 'Halloween Night',
         item = 'firework_halloween',
         itemRemovable = true,
-        command = 'firework_halloween',
+        category = 'halloween',
         shoots = 40,
         prop = 'ind_prop_firework_03',
         timeToStart = 3000,
@@ -311,7 +338,7 @@ Config.Fireworks = {
         name = 'Haunted Battery',
         item = 'firework_halloween_battery',
         itemRemovable = true,
-        command = 'firework_halloween_battery',
+        category = 'halloween',
         shoots = 50,
         prop = 'ind_prop_firework_03',
         timeToStart = 3000,
@@ -329,7 +356,7 @@ Config.Fireworks = {
         name = 'Cauldron Fountain',
         item = 'fountain_halloween',
         itemRemovable = true,
-        command = 'fountain_halloween',
+        category = 'halloween',
         shoots = 100,
         prop = 'ind_prop_firework_04',
         timeToStart = 3000,
@@ -349,7 +376,7 @@ Config.Fireworks = {
         name = 'Christmas Night',
         item = 'firework_christmas',
         itemRemovable = true,
-        command = 'firework_christmas',
+        category = 'christmas',
         shoots = 40,
         prop = 'ind_prop_firework_03',
         timeToStart = 3000,
@@ -367,7 +394,7 @@ Config.Fireworks = {
         name = 'Christmas Battery',
         item = 'firework_christmas_battery',
         itemRemovable = true,
-        command = 'firework_christmas_battery',
+        category = 'christmas',
         shoots = 50,
         prop = 'ind_prop_firework_03',
         timeToStart = 3000,
@@ -384,7 +411,7 @@ Config.Fireworks = {
         name = 'Christmas Tree Fountain',
         item = 'fountain_christmas',
         itemRemovable = true,
-        command = 'fountain_christmas',
+        category = 'christmas',
         shoots = 100,
         prop = 'ind_prop_firework_04',
         timeToStart = 3000,

@@ -8,8 +8,8 @@ A fireworks system for FiveM servers with multiple firework types, particle effe
 - Halloween and Christmas fireworks in seasonal colors
 - ESX, QBCore, and Standalone support
 - ox_inventory, qb-inventory, qs-inventory integration
-- Command and item usage support
-- ACE or job-based permissions
+- Launch menu (`/fireworks`) and usable items
+- ACE or job-based permissions for the menu
 - Optional lighter requirement
 - 3D countdown display
 
@@ -45,6 +45,11 @@ Config.Items = {
     LighterItem = 'lighter',
 }
 
+Config.Menu = {
+    Command = 'fireworks',           -- Opens the launch menu
+    Keybind = '',                    -- Optional default key, e.g. 'F7'
+}
+
 Config.Permissions = {
     Mode = 'ace',                    -- 'ace', 'job', 'none'
     AcePermission = 'fireworks.use',
@@ -55,29 +60,29 @@ Config.Permissions = {
 }
 ```
 
-## 🎮 Commands
+## 🎮 Launch menu
 
-| Command | Description |
-|---------|-------------|
-| `/firework_1` | Starburst Display |
-| `/firework_2` | Christmas Special |
-| `/firework_3` | Spiral Burst |
-| `/firework_4` | Trail Burst |
-| `/fountain_1` | Fountain |
-| `/firework_battery` | Battery Colorful Burst (rapid colorful explosions) |
-| `/firework_battery2` | Battery Fast Burst (rapid explosions) |
-| `/firework_start` | Start Rocket (single big explosion) |
-| `/firework_finale` | Finale Salute (3 massive explosions) |
-| `/firework_halloween` | Halloween Night (orange, purple and green bursts) |
-| `/firework_halloween_battery` | Haunted Battery (rapid Halloween explosions with ghostly smoke) |
-| `/fountain_halloween` | Cauldron Fountain (Halloween colored fountain) |
-| `/firework_christmas` | Christmas Night (red, green, white and gold bursts with a star rocket) |
-| `/firework_christmas_battery` | Christmas Battery (rapid Christmas explosions) |
-| `/fountain_christmas` | Christmas Tree Fountain (Christmas colored fountain) |
-| `/stopfirework` | Stop last placed firework |
-| `/stopfireworks` | Stop all placed fireworks |
+`/fireworks` opens the launch menu: pick a tab (Classic, Batteries, Fountains, Halloween, Christmas), select a firework and press **Launch** (or double-click it, or press Enter). **Stop last** and **Stop all** stop the fireworks you launched from the menu. Each firework's `category` in `Config.Fireworks` picks its tab, and `Config.Menu.Categories` sets the tabs' order, labels and icons. Players can bind the menu to a key in Settings → Key Bindings → FiveM.
 
-> Commands require permission. Items can be used by anyone.
+| Firework | Item |
+|----------|------|
+| Starburst Display | `firework_1` |
+| Christmas Special | `firework_2` |
+| Spiral Burst | `firework_3` |
+| Trail Burst | `firework_4` |
+| Fountain | `fountain_1` |
+| Battery Colorful Burst (rapid colorful explosions) | `firework_battery` |
+| Battery Fast Burst (rapid explosions) | `firework_battery2` |
+| Start Rocket (single big explosion) | `firework_start` |
+| Finale Salute (3 massive explosions) | `firework_finale` |
+| Halloween Night (orange, purple and green bursts) | `firework_halloween` |
+| Haunted Battery (rapid Halloween explosions with ghostly smoke) | `firework_halloween_battery` |
+| Cauldron Fountain (Halloween colored fountain) | `fountain_halloween` |
+| Christmas Night (red, green, white and gold bursts with a star rocket) | `firework_christmas` |
+| Christmas Battery (rapid Christmas explosions) | `firework_christmas_battery` |
+| Christmas Tree Fountain (Christmas colored fountain) | `fountain_christmas` |
+
+> The menu requires permission and launches without using an item. Items can be used by anyone, so you can sell them in shops.
 
 ## 🎃 Seasonal fireworks
 
